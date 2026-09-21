@@ -2,9 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Material;
 use App\Models\Rental;
 use App\Models\Site;
-use App\Models\StockAnomaly;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -30,9 +30,9 @@ class ActiveSitesOverview extends BaseWidget
             ? (($currentRentalTotal - $lastRentalTotal) / $lastRentalTotal) * 100
             : 0;
 
-        $openAnomalies = StockAnomaly::whereIn('status', ['open', 'investigating'])->count();
+        $totalMaterials = Material::count();
 
-        $stats = [
+        return [
             Stat::make('Active Project Sites', "{$activeSitesCount} Sites")
                 ->description($centralStore ? "35 active sites (+ Depot: {$centralStore->name})" : 'All construction sites under EEIG')
                 ->descriptionIcon('heroicon-m-building-office-2')
@@ -57,24 +57,13 @@ class ActiveSitesOverview extends BaseWidget
                 ->chart([190, 202, 210, 217.5, 210.5])
                 ->color($rentalDelta >= 0 ? 'success' : 'warning')
                 ->extraAttributes(['class' => 'stat-card-amber']),
-        ];
 
-        if ($openAnomalies > 0) {
-            $stats[] = Stat::make('Open Stock Anomalies', $openAnomalies)
-                ->description('Discrepancies requiring site audit')
-                ->descriptionIcon('heroicon-m-exclamation-triangle')
-                ->chart([max(0, $openAnomalies - 1), $openAnomalies])
-                ->color('danger')
-                ->extraAttributes(['class' => 'stat-card-rose']);
-        } else {
-            $stats[] = Stat::make('Ledger Health', '100% Clean ✓')
-                ->description('Zero discrepancies · Audited integrity')
-                ->descriptionIcon('heroicon-m-shield-check')
-                ->chart([100, 100, 100, 100, 100])
+            Stat::make('Catalog Materials', "{$totalMaterials} Items")
+                ->description('Standardized scaffolding components')
+                ->descriptionIcon('heroicon-m-squares-2x2')
+                ->chart([25, 30, 34, 38, $totalMaterials])
                 ->color('success')
-                ->extraAttributes(['class' => 'stat-card-emerald']);
-        }
-
-        return $stats;
+                ->extraAttributes(['class' => 'stat-card-emerald']),
+        ];
     }
 }
