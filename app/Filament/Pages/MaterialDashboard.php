@@ -188,6 +188,7 @@ class MaterialDashboard extends Page
             'txIndexUrl' => route('filament.admin.resources.material-transactions.index'),
             'txCreateUrl' => route('filament.admin.resources.material-transactions.create'),
             'canManage' => FilamentRoleAccess::canManageMaterials(),
+            'canCreateTransactions' => FilamentRoleAccess::canCreateTransactions(),
         ];
     }
 
